@@ -44,13 +44,18 @@ And a 'nuisance' parameter
 * Initial number infected 
 
 This shows an example simulation trajectory with a deterministic ODE approximation (red): 
-[](7032-traj.svg)
+
+![](7032-traj.svg)
+
 Note that BEAST will fit the ODE model which can potentially introduce bias. 
 
 Estimates are similar using the two methods. Using the *fast* method: 
-[](sir_5_5_2000_250_beast0_errbar2.svg)
+
+![](sir_5_5_2000_250_beast0_errbar2.svg)
+
 Using the *slow* method: 
-[](sir_5_5_2000_250_beast1_errbar2.svg)
+
+![](sir_5_5_2000_250_beast1_errbar2.svg)
 
 We see very low bias with the *slow* version:
 ```

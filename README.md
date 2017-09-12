@@ -16,7 +16,7 @@ Simulates up to time=250 with 2000 initial susceptible individuals and a transmi
 ```
 Rscript sample.tree.R <simulation id> 250 100
 ```
-Samples 100 individuals up to time = 250
+Samples 250 individuals starting at time 100
 
 3) Generate an XML file for BEAST:
 ```

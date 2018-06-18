@@ -5,6 +5,11 @@ Simulations are individual-based, stochastic, and continuos time using a Gillesp
 A genealogy of the transmission history is reconstructed by subsampling 100 individuals over time. 
 PhyDyn is then used to re-estimate parameters. 
 
+Note the following
+
+* This simulation test is based on genealogies, not on simulated sequences
+* BEAST is _not_ used to simulate data, only to re-estimated parameters. We simulate epidemics using a python script and use an R script to sample genealogies. 
+
 Results can be reproduced with the following steps: 
 1) Simulate the epidemic history: 
 ```

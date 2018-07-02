@@ -1,0 +1,197 @@
+<!--
+this version has PL2 and 35k iters
+-->
+<beast beautitemplate='Standard' beautistatus='' namespace="phydyn.model:phydyn.distribution:phydyn.loggers:phydyn.operators:beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood" version="2.0">
+
+<map name="Uniform">beast.math.distributions.Uniform</map>
+<map name="Exponential">beast.math.distributions.Exponential</map>
+<map name="LogNormal">beast.math.distributions.LogNormalDistributionModel</map>
+<map name="Normal">beast.math.distributions.Normal</map>
+<map name="Beta">beast.math.distributions.Beta</map>
+<map name="Gamma">beast.math.distributions.Gamma</map>
+<map name="LaplaceDistribution">beast.math.distributions.LaplaceDistribution</map>
+<map name="prior">beast.math.distributions.Prior</map>
+<map name="InverseGamma">beast.math.distributions.InverseGamma </map>
+
+
+<data id="sequences" name="alignment">
+insert_sequences
+</data>
+
+
+	<model spec='PopModelODE' id='sirmodel' evaluator="compiled"
+	     popParams='@initValues' modelParams='@rates'>
+		
+		<definition spec='Definition'>
+			N=acute + acute2 + chron + chron2 + S
+		</definition>
+		<definition spec='Definition'>
+			f = beta * (acute + acute2 + chron + chron2) * S / N
+		</definition>
+		<definition spec='Definition'>
+			W = wacute * acute + wacute * wrisk2 *acute2 + chron + wrisk2*chron2
+		</definition>
+		
+		<matrixeq spec='MatrixEquation' type="birth"  origin="acute" destination="acute"> 
+		 f * (wacute * acute / W	) * (assortprob + (1-assortprob) * (1-prisk2))
+		</matrixeq> 
+		<matrixeq spec='MatrixEquation' type="birth"  origin="acute" destination="acute2"> 
+		 f * (wacute * acute / W	)  * ((1-assortprob) * prisk2)
+		</matrixeq> 
+		<matrixeq spec='MatrixEquation' type="migration"  origin="acute" destination="chron"> 
+		 gamma0 *acute
+		</matrixeq> 
+		<matrixeq spec='MatrixEquation' type="death" origin="acute">
+		 mu * acute 
+		</matrixeq> 
+		
+		<matrixeq spec='MatrixEquation' type="birth"  origin="acute2" destination="acute"> 
+		 f * (wacute * wrisk2 * acute2 / W	)  * ((1-assortprob) * (1-prisk2))
+		</matrixeq> 
+		<matrixeq spec='MatrixEquation' type="birth"  origin="acute2" destination="acute2"> 
+		 f * (wacute * wrisk2 * acute2 / W	) * (assortprob + (1-assortprob) * prisk2)
+		</matrixeq> 
+		<matrixeq spec='MatrixEquation' type="migration"  origin="acute2" destination="chron2"> 
+		 gamma0 *acute2
+		</matrixeq> 
+		<matrixeq spec='MatrixEquation' type="death" origin="acute2">
+		 mu * acute2
+		</matrixeq> 
+		
+		<matrixeq spec='MatrixEquation' type="birth"  origin="chron" destination="acute"> 
+		 f * (chron / W	) * (assortprob + (1-assortprob) * (1-prisk2))
+		</matrixeq> 
+		<matrixeq spec='MatrixEquation' type="birth"  origin="chron" destination="acute2"> 
+		 f * (chron / W	) * ( (1-assortprob) * (prisk2))
+		</matrixeq> 
+		<matrixeq spec='MatrixEquation' type="death" origin="chron">
+		 mu * chron + gamma1 * chron 
+		</matrixeq> 
+		
+		<matrixeq spec='MatrixEquation' type="birth"  origin="chron2" destination="acute"> 
+		 f * (chron2 * wrisk2 / W	) *  ( (1-assortprob) * (1-prisk2))
+		</matrixeq> 
+		<matrixeq spec='MatrixEquation' type="birth"  origin="chron2" destination="acute2"> 
+		 f * (chron2 * wrisk2 / W	) * (assortprob + (1-assortprob) * prisk2)
+		</matrixeq> 
+		<matrixeq spec='MatrixEquation' type="death" origin="chron2">
+		 mu * chron2 + gamma1 * chron2
+		</matrixeq> 
+		
+		
+		<matrixeq spec='MatrixEquation' type="nondeme" origin="S"> 
+			-f + mu * S0 - mu *S
+		</matrixeq>
+		
+	</model>
+	
+	<rates spec="ModelParameters" id='rates'>	
+		<param spec='ParamValue' names='gamma0' values='1'/>
+		<param spec='ParamValue' names='gamma1' values='0.1111111'/>
+		<param spec='ParamValue' names='beta' values='@beta'/>
+		<param spec='ParamValue' names='wacute' values='@wacute'/>
+		<param spec='ParamValue' names='wrisk2' values='@wrisk2'/>
+		<param spec='ParamValue' names='mu' values='.025'/>
+		<param spec='ParamValue' names='prisk2' values='.30'/>
+		<param spec='ParamValue' names='S0' values='@S0'/>
+		<param spec='ParamValue' names='assortprob' values='0.0'/>
+	</rates>
+	
+	<trajparams id='initValues' spec='TrajectoryParameters' method="adams-bashforth" 
+	            integrationSteps="501" rTol="0.001" aTol="1.0e-4" order="3" t0="0" t1="101.0">
+			<initialValue spec="ParamValue" names='acute' values='@init_acute'  />
+			<initialValue spec="ParamValue" names='chron' values='0.0001'  />
+			<initialValue spec="ParamValue" names='acute2' values='0.0001'  />
+			<initialValue spec="ParamValue" names='chron2' values='0.0001'  />
+			<initialValue spec="ParamValue" names='S' values='@S0' />
+	</trajparams>
+	
+	<!-- Define tree outside state -->
+	<init spec="beast.util.TreeParser" id="tree"
+			taxa="@sequences" 
+			adjustTipHeights="false"
+			IsLabelledNewick="true"
+			newick="insert_tree">
+	</init>
+	
+	<run id="mcmc" spec="MCMC" chainLength="35000">
+		<state id="state" storeEvery="100">
+			<parameter id="init_acute" lower="0.0" upper="140" name="stateNode">1.00</parameter>
+			<parameter id="S0" lower="500.0" upper="100000.0" name="stateNode">5000.00</parameter>
+			<parameter id="beta" lower="0.0" upper="5" name="stateNode">0.25</parameter>
+			<parameter id="wacute" lower="0.0" upper="50" name="stateNode">5.0</parameter>
+			<parameter id="wrisk2" lower="0.0" upper="50" name="stateNode">2.0</parameter>
+		</state>
+	 	
+ 		<distribution id="posterior" spec="util.CompoundDistribution">
+			<distribution id="prior" spec="util.CompoundDistribution">
+				<!--
+				note for median prior values 
+								log(5000) = 8.5 
+								log(1/40) = -3.68
+								log(.2) = -1.6 
+				-->
+
+				<prior id="initI0prior" name="distribution" x="@init_acute">
+					<LogNormal id="LogNormal:initI0" M="0" S="1" name="distr" />
+				</prior>
+				<prior id="initS0prior" name="distribution" x="@S0">
+					<LogNormal id="LogNormal:initS0" M="8.5" S="1" name="distr" />
+				</prior>				
+				<prior id="betaPrior" name="distribution" x="@beta">
+					<LogNormal id="LogNormal:beta" M="-1.6" S="0.5" name="distr" />
+				</prior>
+				
+				<prior id="wacuteprior" name="distribution" x="@wacute">
+					<Uniform id="Uniform:wacute" lower="0.0" upper="50.0" name="distr" />
+				</prior>
+				<prior id="wrisk2prior" name="distribution" x="@wrisk2">
+					<Uniform id="Uniform:wrisk2" lower="0.0" upper="50.0" name="distr" />
+				</prior>
+			</distribution>	
+			
+			<distribution id="likelihood" spec="util.CompoundDistribution">
+				 <distribution spec='STreeLikelihoodODE' id = 'stlikelihood'
+             	 useStateName='true'
+             	 equations='QL'
+             	 forgiveY='true'
+             	 stepSize='0.01'
+                 popmodel='@sirmodel'  >
+                 
+                 <treeIntervals spec="STreeIntervals" tree='@tree'> </treeIntervals>
+                 
+    			</distribution>
+			</distribution>
+		</distribution>
+		
+		<operator id="rwoperator:beta" spec="RealRandomWalkOperator" windowSize="0.05" parameter="@beta" useGaussian='true' weight="1" />
+		<operator id="rwoperator:initI0" spec="RealRandomWalkOperator" windowSize="1.0" parameter="@init_acute" useGaussian='true' weight="1" />
+		<operator id="rwoperator:wrisk2" spec="RealRandomWalkOperator" windowSize=".25" parameter="@wrisk2" useGaussian='true' weight="1" />
+		<operator id="rwoperator:wacute" spec="RealRandomWalkOperator" windowSize=".25" parameter="@wacute" useGaussian='true' weight="1" />
+<!--
+		<operator id="rwoperator:initS0" spec="RealRandomWalkOperator" windowSize="0.0" parameter="@S0" useGaussian='true' weight="1" />
+-->
+		
+		<logger id="tracelog" fileName="insert_logfn" logEvery="100" model="@posterior" sanitiseHeaders="true" sort="smart">
+			<log idref="beta"/>
+			<log idref="init_acute"/>
+			<log idref="S0"/>
+			<log idref="wacute"/>
+			<log idref="wrisk2"/>
+			<log idref="prior"/>
+			<log idref="posterior"/>
+		</logger>
+		<logger id="screenlog" logEvery="1">
+			<log idref="beta"/>
+			<log idref="init_acute"/>
+			<log idref="S0"/>
+			<log idref="wacute"/>
+			<log idref="wrisk2"/>
+			<log idref="prior"/>
+			<log idref="posterior"/>
+		</logger>
+		<logger id = "popModelLogger" fileName="insert_logfn.traj" logEvery="1000">
+			<log id="trajectoryLogger" spec="TrajectoryLogger" popModel="@sirmodel" pointFrequency="1"></log>
+		</logger>
+	</run>
+</beast>

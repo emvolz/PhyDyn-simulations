@@ -1,14 +1,22 @@
-# PhyDyn simulations
-This repository is for simulation experiments to evaluate performance of the [PhyDyn](https://github.com/mrc-ide/PhyDyn) BEAST2 package. 
-We simulate a SIRS infectious disease epidemic such that transmission rates vary over the course of infection and between risk groups. 
-Simulations are individual-based, stochastic, and continuos time using a Gillespie exact algorithm. 
-A genealogy of the transmission history is reconstructed by subsampling 100 individuals over time. 
-PhyDyn is then used to re-estimate parameters. 
+# Simulation set 1
 
-Note the following
+These simulations describe an SIRS epidemic with two risk groups and two stages of infection for a total of four demes. The transmission rate varies between all demes.
+For a description of the model, see the manuscript: [https://www.biorxiv.org/content/early/2018/04/10/268052](https://www.biorxiv.org/content/early/2018/04/10/268052)
 
-* This simulation test is based on genealogies, not on simulated sequences
-* BEAST is _not_ used to simulate data, only to re-estimated parameters. We simulate epidemics using a python script and use an R script to sample genealogies. 
+Twenty simulations are carried out with 2000 initial susceptible and sampling 250 lineages for a long period following epidemic peak. 
+
+Four parameters are estimated
+* Transmission rate for SIR dynamics
+	- True value = .25 
+* Transmission risk ratio for 1st stage of infection ('acute')
+	- True value = 5
+* Transmission risk ratio for the high risk group 
+	- True value = 5
+And a 'nuisance' parameter
+* Initial number infected 
+
+
+## Reproducing results 
 
 Results can be reproduced with the following steps: 
 1) Simulate the epidemic history: 
@@ -41,12 +49,6 @@ We summarise output from 20 simulations.
 Rscript a0.beast.R
 ```
 
-Four parameters are estimated
-* Transmission rate for SIR dynamics
-* Transmission risk ratio for 1st stage of infection ('acute')
-* Transmission risk ratio for the high risk group 
-And a 'nuisance' parameter
-* Initial number infected 
 
 This shows an example simulation trajectory with a deterministic ODE approximation (red): 
 

@@ -12,7 +12,6 @@ Four parameters are estimated using BEAST2 PhyDyn
 	- True value varied bwetween simulations from 1 to 9
 * Transmission risk ratio for the high risk group 
 	- True value varied bwetween simulations from 1 to 9
-And a 'nuisance' parameter
 * Initial number infected 
 
 Estimates make use of different approximate structured coalescent models, and estimates obtained with different models are compared in the analysis script. See the ms. for more information on the different coalescent models available in BEAST2. 
